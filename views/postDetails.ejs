@@ -1,0 +1,105 @@
+<%- include('partials/header', { title: post ? post.title : "Post" , user: user }) %>
+
+  <div class="container mt-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <div class="card shadow-sm border-0 rounded-lg">
+          <div class="card-body p-5">
+            <h1 class="card-title text-center mb-3">
+              <%= post ? post.title : "Untitled Post" %>
+            </h1>
+            <p class="text-muted text-center">
+              <small>By <strong>
+                  <%= post && post.author ? post.author.username : "Unknown Author" %>
+                </strong> |
+                <%= post && post.createdAt ? new Date(post.createdAt).toDateString() : "Unknown Date" %>
+              </small>
+            </p>
+
+            <p class="lead mt-4">
+              <%= post ? post.content : "" %>
+            </p>
+
+            <% if (post && post.images && post.images.length> 0) { %>
+              <h3 class="mt-4">Images</h3>
+              <div class="row">
+                <% post.images.forEach(image=> { %>
+                  <div class="col-md-6 mb-3">
+                    <img src="<%= image.url %>" alt="Post Image" class="img-fluid rounded shadow-sm" />
+                  </div>
+                  <% }) %>
+              </div>
+              <% } %>
+
+                <% if (user && post && user._id.toString()===post.author._id.toString()) { %>
+                  <div class="mt-4 text-center">
+                    <a href="/posts/<%= post._id %>/edit" class="btn btn-outline-primary">
+                      <i class="fas fa-edit"></i> Edit Post
+                    </a>
+                    <form action="/posts/<%= post._id %>?_method=DELETE" method="POST" class="d-inline">
+                      <button type="submit" class="btn btn-outline-danger">
+                        <i class="fas fa-trash-alt"></i> Delete Post
+                      </button>
+                    </form>
+                  </div>
+                  <% } %>
+          </div>
+        </div>
+
+        <!-- Comments Section -->
+        <div class="card mt-4 shadow-sm border-0 rounded-lg">
+          <div class="card-body p-4">
+            <h2 class="text-center">Comments</h2>
+            <% if (post && post.comments && post.comments.length> 0) { %>
+              <ul class="list-group list-group-flush mt-3">
+                <% post.comments.forEach(comment=> { %>
+                  <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                      <strong class="text-primary">
+                        <%= comment.author ? comment.author.username : "Unknown User" %>
+                      </strong>:
+                      <span>
+                        <%= comment.content %>
+                      </span>
+                    </div>
+                    <% if (user && comment.author && user._id.toString()===comment.author._id.toString()) { %>
+                      <div class="btn-group">
+                        <a href="/comments/<%= comment._id %>/edit" class="btn btn-sm btn-outline-secondary">
+                          <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <form action="/comments/<%= comment._id %>?_method=DELETE" method="POST" class="d-inline">
+                          <button type="submit" class="btn btn-sm btn-outline-danger">
+                            <i class="fas fa-trash-alt"></i> Delete
+                          </button>
+                        </form>
+                      </div>
+                      <% } %>
+                  </li>
+                  <% }) %>
+              </ul>
+              <% } else { %>
+                <p class="text-muted text-center mt-3">No comments yet.</p>
+                <% } %>
+
+                  <% if (user) { %>
+                    <form action="/posts/<%=post._id%>/comments" method="POST" class="mt-4">
+                      <div class="form-group">
+                        <textarea name="content" rows="3" class="form-control" placeholder="Add a comment..."
+                          required></textarea>
+                      </div>
+                      <div class="text-center">
+                        <button type="submit" class="btn btn-primary">Add Comment</button>
+                      </div>
+                    </form>
+                    <% } else { %>
+                      <p class="text-center mt-3"><a href="/auth/login" class="text-decoration-none">Login</a> to add a
+                        comment.</p>
+                      <% } %>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <%- include('partials/footer') %>
